@@ -1,16 +1,27 @@
-from pydantic import BaseSettings
+import os
 from typing import Optional
 
 
-class XNOSettings(BaseSettings):
+class DatabaseConfiguration:
+    def __init__(self):
+        self.db_host: str = os.environ['DB_HOST']
+        self.db_port: str = os.environ['DB_PORT']
+        self.db_user: str = os.environ['DB_USER']
+        self.db_password: str = os.environ['DB_PASSWORD']
+        self.db_name: str = os.environ['DB_NAME']
+
+class RedisConfiguration:
+    def __init__(self):
+        self.redis_host: str = os.environ['REDIS_HOST']
+        self.redis_port: int = int(os.environ['REDIS_PORT'])
+        self.redis_password: str = os.environ['REDIS_PASSWORD']
+        self.redis_db: int = int(os.environ.get('REDIS_DB', 0))
+
+
+class XNOSettings:
     api_key: Optional[str] = None
 
-    _mode: str = "P"
-    # Database (internal)
-    _db_dsn: Optional[str] = None
-    # Redis (internal streaming)
-    _redis_url: Optional[str] = None
-
+    mode: str = "public"
     # Upstream REST API (public)
     api_base_url: str = "https://example.com/xno-api"
 
