@@ -85,8 +85,7 @@ class InternalDataSource(BaseDataSource, ABC):
         cls,
         query_template: str,
         chunk_size: int,
-        params: dict,
-        index_cols: List[str] = ("time", "symbol"),
+        params: dict
     ) -> Iterable[pd.DataFrame]:
         """
         Yield DataFrames in *chunk_size* batches.
@@ -95,8 +94,7 @@ class InternalDataSource(BaseDataSource, ABC):
 
         with cls.db() as session:
             for chunk_df in tqdm(pd.read_sql_query(sql, session.bind, params=params, chunksize=chunk_size,)):
-                if index_cols:
-                    chunk_df = chunk_df.set_index(list(index_cols))
+                logging.info("Yielding chunk of size %d", len(chunk_df))
                 yield chunk_df
 
     def _stream(self, symbols, commit_batch_size=125):
@@ -130,7 +128,7 @@ class InternalDataSource(BaseDataSource, ABC):
                     if total_messages % commit_batch_size == 0:
                         # commit buffered messages to the data source
                         logging.debug(f"Committing {len(self.data_buffer)} buffered messages. Total consume messages {total_messages}")
-                        self._commit_buffer(index_cols=["time", "symbol"])
+                        self.commit_buffer()
                 except json.JSONDecodeError as exc:
                     logging.warning("Bad JSON on %s: %s", msg["channel"], exc)
                     continue
@@ -154,7 +152,6 @@ class InternalDataSource(BaseDataSource, ABC):
         def _runner():
             self._stream(
                 symbols=symbols,
-                topic_template=self._realtime_topic_template,
                 commit_batch_size=commit_batch_size,
             )
 

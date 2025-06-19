@@ -13,8 +13,8 @@ class OHLCHandler(DataHandler):
         self.source = PublicOhlcDatasource if settings.mode == "public" else InternalOhlcDatasource()
 
     def load_data(self, from_time, to_time):
-        df = self.source.fetch(self.symbols, from_time, to_time, resolution=self.resolution)
-        return df
+        self.source.fetch(symbols=self.symbols, from_time=from_time, to_time=to_time, resolution=self.resolution)
+        return self
 
     def stream(self):
         return self.source.stream(self.symbols, resolution=self.resolution)

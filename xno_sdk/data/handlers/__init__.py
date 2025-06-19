@@ -1,8 +1,11 @@
 # xno_sdk/data/handlers/__init__.py
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import List, Union, Any
+from typing import List, Union, Any, Type, Optional
 import pandas as pd
+
+from xno_sdk.data.datasources import BaseDataSource
+
 
 class DataHandler(ABC):
     def __init__(self, symbols: Union[str, List[str]]):
@@ -14,7 +17,15 @@ class DataHandler(ABC):
         if isinstance(symbols, str):
             symbols = [symbols]
         self.symbols = symbols
-        self.dataframe: pd.DataFrame = pd.DataFrame()
+        self.source: Optional[Union[BaseDataSource, Type[BaseDataSource]]] = None
+
+    def get_data(self) -> pd.DataFrame:
+        """
+        Get the current DataFrame.
+        :return: DataFrame containing the data.
+        """
+        self.source.commit_buffer()
+        return self.source.datas
 
     @abstractmethod
     def load_data(
@@ -31,7 +42,8 @@ class DataHandler(ABC):
 
     @abstractmethod
     def stream(self) -> Any:
-        """
-        Yield / push rows continuously.  Concrete handler decides whether
-        this is a generator, async‑generator, or pushes to Redis / WS.
-        """
+        return self.source.stream(
+            symbols=self.symbols,
+            commit_batch_size=125,
+            daemon=True
+        )

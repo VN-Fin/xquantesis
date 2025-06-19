@@ -14,7 +14,7 @@ class PublicOhlcDatasource(BaseDataSource):
         """
         Fetch OHLC data for a given symbol and time range.
 
-        :param symbol: The stock symbol to fetch data for.
+        :param symbols: The stock symbol to fetch data for.
         :param from_time: Start time for the data fetch.
         :param to_time: End time for the data fetch.
         :return: DataFrame containing OHLC data.

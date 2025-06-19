@@ -1,5 +1,6 @@
 from .config import settings
-import logging
+
+import pandas as pd
 
 __all__ = [
     "OHLCDataLoader",
@@ -7,3 +8,4 @@ __all__ = [
     "WebSocketStreamer",
     "settings",
 ]
+pd.option_context("display.multi_sparse", False)

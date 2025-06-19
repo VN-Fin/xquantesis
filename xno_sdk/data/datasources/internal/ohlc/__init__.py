@@ -9,7 +9,13 @@ from xno_sdk.data.datasources.internal import InternalDataSource
 
 _query_template = """
 SELECT 
-    time, symbol, open, high, low, close, volume
+    time as "Time", 
+    symbol as "Symbol", 
+    open as "Open",
+    high as "High", 
+    low as "Low", 
+    close as "Close", 
+    volume as "Volume" 
 FROM trading.stock_ohlcv_history
 WHERE (
     symbol = ANY(:symbols) AND resolution = :resolution
@@ -26,13 +32,13 @@ class InternalOhlcDatasource(InternalDataSource):
         if record.get('resolution') != self.resolution:
             return None
         return {
-            "time": record["time"],
-            "symbol": record["symbol"],
-            "open": record["open"],
-            "high": record["high"],
-            "low": record["low"],
-            "close": record["close"],
-            "volume": record["volume"],
+            "Time": record["time"].split(".")[0],
+            "Symbol": record["symbol"],
+            "Open": record["open"],
+            "High": record["high"],
+            "Low": record["low"],
+            "Close": record["close"],
+            "Volume": record["volume"],
         }
 
     def __init__(self):
@@ -41,8 +47,8 @@ class InternalOhlcDatasource(InternalDataSource):
         """
         super().__init__()
         self.datas = pd.DataFrame(
-            columns=["symbol", "time", "open", "high", "low", "close", "volume"]
-        ).set_index(["time", "symbol"]).sort_index()
+            columns=["Symbol", "Time", "Open", "High", "Low", "Close", "Volume"]
+        ).set_index(["Time", "Symbol"])
         self.resolution = None  # Placeholder for resolution, to be set during fetch
         self._realtime_topic_template = "data.quant.{symbol}.ohlc"
 
