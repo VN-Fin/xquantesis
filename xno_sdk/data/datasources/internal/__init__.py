@@ -2,9 +2,9 @@
 import json
 import logging
 from abc import ABC
-from collections.abc import Callable
+import threading
 from typing import Iterable, Union, List
-
+from tqdm import tqdm
 import pandas as pd
 import redis
 from sqlalchemy import create_engine, text
@@ -22,6 +22,15 @@ class InternalDataSource(BaseDataSource, ABC):
     """
     _redis_client: Union[redis.StrictRedis, None] = None
     _SessionFactory: Union[scoped_session, None] = None
+
+    def __init__(self):
+        """
+        Initialize the internal datasource.
+        This class should not be instantiated directly.
+        """
+        super().__init__()
+        self._realtime_topic_template = None
+        self._yield_records = 5_000
 
     @classmethod
     def _create_session_factory(cls) -> scoped_session:
@@ -85,22 +94,15 @@ class InternalDataSource(BaseDataSource, ABC):
         sql = text(query_template)
 
         with cls.db() as session:
-            for chunk_df in pd.read_sql_query(
-                sql,
-                session.bind,
-                params=params,
-                chunksize=chunk_size,
-            ):
+            for chunk_df in tqdm(pd.read_sql_query(sql, session.bind, params=params, chunksize=chunk_size,)):
                 if index_cols:
                     chunk_df = chunk_df.set_index(list(index_cols))
                 yield chunk_df
 
-    def _stream(self, symbols, topic_template, data_transform_func: Callable, commit_batch_size=125):
+    def _stream(self, symbols, commit_batch_size=125):
         """
         Stream data from Redis Pub/Sub for the specified symbols.
         :param symbols: List of symbols to subscribe to.
-        :param topic_template: Template for the Redis topic.
-        :param data_transform_func: Function to transform the incoming data.
         :param commit_batch_size: Number of messages to buffer before committing.
         """
         # normalise input
@@ -108,7 +110,7 @@ class InternalDataSource(BaseDataSource, ABC):
             symbols = [symbols]
 
         channels = [
-            topic_template.format(symbol=sym) for sym in symbols
+            self._realtime_topic_template.format(symbol=sym) for sym in symbols
         ]
 
         pubsub = self.redis().pubsub(ignore_subscribe_messages=True)
@@ -119,10 +121,12 @@ class InternalDataSource(BaseDataSource, ABC):
                 if msg["type"] != "message":
                     continue
 
-                total_messages += 1
                 try:
-                    payload = data_transform_func(json.loads(msg["data"]))
-                    self.data_buffer.append(payload)
+                    payload = self.data_transform_func(json.loads(msg["data"]))
+                    if payload is not None:
+                        self.data_buffer.append(payload)
+
+                    total_messages += 1
                     if total_messages % commit_batch_size == 0:
                         # commit buffered messages to the data source
                         logging.debug(f"Committing {len(self.data_buffer)} buffered messages. Total consume messages {total_messages}")
@@ -130,7 +134,32 @@ class InternalDataSource(BaseDataSource, ABC):
                 except json.JSONDecodeError as exc:
                     logging.warning("Bad JSON on %s: %s", msg["channel"], exc)
                     continue
-
         finally:
             # clean shutdown
             pubsub.close()
+
+    def stream(
+        self,
+        symbols,
+        *,
+        commit_batch_size,
+        daemon,
+        **kwargs,
+    ) -> threading.Thread:
+        if self._stream_thread and self._stream_thread.is_alive():
+            logging.warning("Stream already running")
+            return self._stream_thread
+
+        # Build a partial function so we don't leak kwargs
+        def _runner():
+            self._stream(
+                symbols=symbols,
+                topic_template=self._realtime_topic_template,
+                commit_batch_size=commit_batch_size,
+            )
+
+        th = threading.Thread(target=_runner, daemon=daemon, name="OHLC-Stream")
+        th.start()
+        self._stream_thread = th
+        logging.info("Started background stream (%s)", th.name)
+        return th

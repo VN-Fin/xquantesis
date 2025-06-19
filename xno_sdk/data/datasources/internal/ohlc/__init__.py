@@ -1,4 +1,8 @@
 # xno_sdk/data/datasources/internal/ohlc/__init__.py
+import logging
+import threading
+from typing import Union
+
 import pandas as pd
 from xno_sdk.data.datasources.internal import InternalDataSource
 
@@ -13,28 +17,24 @@ WHERE (
     AND time < :to_time
 )
 """
-_yield_records = 5_000
-_realtime_topic_template = "data.quant.{symbol}.ohlc"
 
 
-def data_transform_func(record):
-    """
-    Transform a record from Redis into a DataFrame row.
-
-    :param record: The record to transform.
-    :return: A DataFrame row.
-    """
-    return {
-        "time": record["time"],
-        "symbol": record["symbol"],
-        "open": record["open"],
-        "high": record["high"],
-        "low": record["low"],
-        "close": record["close"],
-        "volume": record["volume"],
-    }
 
 class InternalOhlcDatasource(InternalDataSource):
+    def data_transform_func(self, record: dict) -> Union[None, dict]:
+        # Do not process records that do not match the resolution
+        if record.get('resolution') != self.resolution:
+            return None
+        return {
+            "time": record["time"],
+            "symbol": record["symbol"],
+            "open": record["open"],
+            "high": record["high"],
+            "low": record["low"],
+            "close": record["close"],
+            "volume": record["volume"],
+        }
+
     def __init__(self):
         """
         Initialize the internal OHLC datasource.
@@ -43,6 +43,8 @@ class InternalOhlcDatasource(InternalDataSource):
         self.datas = pd.DataFrame(
             columns=["symbol", "time", "open", "high", "low", "close", "volume"]
         ).set_index(["time", "symbol"]).sort_index()
+        self.resolution = None  # Placeholder for resolution, to be set during fetch
+        self._realtime_topic_template = "data.quant.{symbol}.ohlc"
 
     def fetch(self, symbols, from_time, to_time, **kwargs):
         """
@@ -54,32 +56,33 @@ class InternalOhlcDatasource(InternalDataSource):
         :return: DataFrame containing OHLC data.
         """
 
-        resolution = kwargs.get("resolution", None)
-        if resolution is None:
+        self.resolution = kwargs.get("resolution", None)
+        if self.resolution is None:
             raise ValueError("Resolution must be specified for fetching OHLC data.")
 
         for chunk_df in self._query_db(
             query_template=_query_template,
-            chunk_size=_yield_records,
+            chunk_size=self._yield_records,
             params={
                 "symbols": symbols,
-                "resolution": resolution,
+                "resolution": self.resolution,
                 "from_time": from_time,
                 "to_time": to_time,
             }
         ):
             self.append_df_rows(chunk_df)
 
-    def stream(self, symbols, commit_batch_size=10, **kwargs):
-        """
-        Stream OHLC data for the specified symbols.
-        :param symbols:
-        :param commit_batch_size:
-        :param kwargs:
-        :return:
-        """
-        self._stream(
-            symbols=symbols,
-            topic_template=_realtime_topic_template,
-            data_transform_func=data_transform_func,
+    def stream(
+        self,
+        symbols,
+        *,
+        commit_batch_size: int = 10,
+        daemon: bool = True,
+        **kwargs,
+    ) -> threading.Thread:
+        return super().stream(
+            symbols,
+            commit_batch_size=commit_batch_size,
+            daemon=daemon,
+            topic_template=self._realtime_topic_template,
         )
