@@ -4,11 +4,11 @@ from typing import Optional
 
 class DatabaseConfiguration:
     def __init__(self):
-        self.db_host: str = os.environ['DB_HOST']
-        self.db_port: str = os.environ['DB_PORT']
-        self.db_user: str = os.environ['DB_USER']
-        self.db_password: str = os.environ['DB_PASSWORD']
-        self.db_name: str = os.environ['DB_NAME']
+        self.db_host: str = os.environ['POSTGRES_HOST']
+        self.db_port: str = os.environ['POSTGRES_PORT']
+        self.db_user: str = os.environ['POSTGRES_USER']
+        self.db_password: str = os.environ['POSTGRES_PASSWORD']
+        self.db_name: str = os.environ['POSTGRES_DB']
 
 class RedisConfiguration:
     def __init__(self):
