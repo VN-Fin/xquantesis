@@ -19,11 +19,12 @@ class RedisConfiguration:
 
 
 class XNOSettings:
-    api_key: Optional[str] = None
+    api_key: Optional[str] = os.environ.get('XNO_API_KEY', None)
 
     mode: str = "public"
+    environment: str = os.environ.get('XNO_ENV', 'live')
     # Upstream REST API (public)
-    api_base_url: str = "https://example.com/xno-api"
+    api_base_url: str = "https://api-v2.xno.vn" if environment == 'live' else "https://dev-api-v2.xno.vn"
 
 # Create a global settings instance
 settings = XNOSettings()
