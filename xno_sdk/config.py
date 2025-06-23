@@ -24,7 +24,8 @@ class XNOSettings:
     mode: str = "public"
     environment: str = os.environ.get('XNO_ENV', 'live')
     # Upstream REST API (public)
-    api_base_url: str = "https://api-v2.xno.vn" if environment == 'live' else "https://dev-api-v2.xno.vn"
+    # api_base_url: str = "https://api-v2.xno.vn" if environment == 'live' else "https://dev-api-v2.xno.vn"
+    api_base_url: str = "http://127.0.0.1:3000"
 
 # Create a global settings instance
 settings = XNOSettings()

@@ -10,7 +10,7 @@ class OHLCHandler(DataHandler):
     def __init__(self, symbols, resolution):
         super().__init__(symbols)
         self.resolution = resolution
-        self.source = PublicOhlcDatasource if settings.mode == "public" else InternalOhlcDatasource()
+        self.source = PublicOhlcDatasource() if settings.mode == "public" else InternalOhlcDatasource()
 
     def load_data(self, from_time, to_time):
         self.source.fetch(symbols=self.symbols, from_time=from_time, to_time=to_time, resolution=self.resolution)
