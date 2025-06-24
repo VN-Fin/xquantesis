@@ -1,7 +1,7 @@
-from xno_sdk.timeseries import fromtalib
+from xno_sdk.timeseries._internal import _call_func
 
 
-@fromtalib
+@_call_func
 def AD(high, low, close, volume):
     """
     Accumulation/Distribution Line.
@@ -22,7 +22,7 @@ def AD(high, low, close, volume):
     """
     pass
 
-@fromtalib
+@_call_func
 def ADOSC(high, low, close, volume, fastperiod=3, slowperiod=10):
     """
     Chaikin A/D Oscillator.
@@ -47,7 +47,7 @@ def ADOSC(high, low, close, volume, fastperiod=3, slowperiod=10):
     """
     pass
 
-@fromtalib
+@_call_func
 def OBV(close, volume):
     """
     On-Balance Volume (OBV).

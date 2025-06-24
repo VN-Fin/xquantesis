@@ -1,7 +1,7 @@
-from xno_sdk.timeseries import fromtalib
+from xno_sdk.timeseries._internal import _call_func
 
 
-@fromtalib
+@_call_func
 def ADX(high, low, close, timeperiod=14):
     """
     Average Directional Index (ADX).
@@ -22,7 +22,7 @@ def ADX(high, low, close, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def ADXR(high, low, close, timeperiod=14):
     """
     Average Directional Index Rating (ADXR).
@@ -43,7 +43,7 @@ def ADXR(high, low, close, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def APO(real, fastperiod=12, slowperiod=26, matype=0):
     """
     Absolute Price Oscillator (APO).
@@ -64,7 +64,7 @@ def APO(real, fastperiod=12, slowperiod=26, matype=0):
     """
     pass
 
-@fromtalib
+@_call_func
 def AROON(high, low, timeperiod=14):
     """
     Aroon Indicator.
@@ -83,7 +83,7 @@ def AROON(high, low, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def AROONOSC(high, low, timeperiod=14):
     """
     Aroon Oscillator.
@@ -102,7 +102,7 @@ def AROONOSC(high, low, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def BOP(open_, high, low, close):
     """
     Balance of Power (BOP).
@@ -123,7 +123,7 @@ def BOP(open_, high, low, close):
     """
     pass
 
-@fromtalib
+@_call_func
 def CCI(high, low, close, timeperiod=14):
     """
     Commodity Channel Index (CCI).
@@ -144,7 +144,7 @@ def CCI(high, low, close, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def CMO(real, timeperiod=14):
     """
     Chande Momentum Oscillator (CMO).
@@ -161,7 +161,7 @@ def CMO(real, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def DX(high, low, close, timeperiod=14):
     """
     Directional Movement Index (DX).
@@ -182,7 +182,7 @@ def DX(high, low, close, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def MACD(real, fastperiod=12, slowperiod=26, signalperiod=9):
     """
     Moving Average Convergence Divergence (MACD).
@@ -203,7 +203,7 @@ def MACD(real, fastperiod=12, slowperiod=26, signalperiod=9):
     """
     pass
 
-@fromtalib
+@_call_func
 def MACDEXT(real, fastperiod=12, fastmatype=0, slowperiod=26, slowmatype=0, signalperiod=9, signalmatype=0):
     """
     MACD with Extended Moving Averages.
@@ -230,7 +230,7 @@ def MACDEXT(real, fastperiod=12, fastmatype=0, slowperiod=26, slowmatype=0, sign
     """
     pass
 
-@fromtalib
+@_call_func
 def MACDFIX(real, signalperiod=9):
     """
     Fixed MACD.
@@ -247,7 +247,7 @@ def MACDFIX(real, signalperiod=9):
     """
     pass
 
-@fromtalib
+@_call_func
 def MFI(high, low, close, volume, timeperiod=14):
     """
     Money Flow Index (MFI).
@@ -270,7 +270,7 @@ def MFI(high, low, close, volume, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def MINUS_DI(high, low, close, timeperiod=14):
     """
     Minus Directional Indicator (-DI).
@@ -291,7 +291,7 @@ def MINUS_DI(high, low, close, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def MINUS_DM(high, low, timeperiod=14):
     """
     Minus Directional Movement (-DM).
@@ -310,7 +310,7 @@ def MINUS_DM(high, low, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def MOM(real, timeperiod=10):
     """
     Momentum.
@@ -327,7 +327,7 @@ def MOM(real, timeperiod=10):
     """
     pass
 
-@fromtalib
+@_call_func
 def PLUS_DI(high, low, close, timeperiod=14):
     """
     Plus Directional Indicator (+DI).
@@ -348,7 +348,7 @@ def PLUS_DI(high, low, close, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def PLUS_DM(high, low, timeperiod=14):
     """
     Plus Directional Movement (+DM).
@@ -367,7 +367,7 @@ def PLUS_DM(high, low, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def PPO(real, fastperiod=12, slowperiod=26, matype=0):
     """
     Percentage Price Oscillator (PPO).
@@ -388,7 +388,7 @@ def PPO(real, fastperiod=12, slowperiod=26, matype=0):
     """
     pass
 
-@fromtalib
+@_call_func
 def ROC(real, timeperiod=10):
     """
     Rate of Change (ROC).
@@ -405,7 +405,7 @@ def ROC(real, timeperiod=10):
     """
     pass
 
-@fromtalib
+@_call_func
 def ROCP(real, timeperiod=10):
     """
     Rate of Change Percentage (ROCP).
@@ -422,7 +422,7 @@ def ROCP(real, timeperiod=10):
     """
     pass
 
-@fromtalib
+@_call_func
 def ROCR(real, timeperiod=10):
     """
     Rate of Change Ratio (ROCR).
@@ -439,7 +439,7 @@ def ROCR(real, timeperiod=10):
     """
     pass
 
-@fromtalib
+@_call_func
 def ROCR100(real, timeperiod=10):
     """
     Rate of Change Ratio 100 (ROCR100).
@@ -456,7 +456,7 @@ def ROCR100(real, timeperiod=10):
     """
     pass
 
-@fromtalib
+@_call_func
 def RSI(real, timeperiod=14):
     """
     Relative Strength Index (RSI).
@@ -473,7 +473,7 @@ def RSI(real, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def STOCH(high, low, close, fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0):
     """
     Stochastic Oscillator.
@@ -502,7 +502,7 @@ def STOCH(high, low, close, fastk_period=5, slowk_period=3, slowk_matype=0, slow
     """
     pass
 
-@fromtalib
+@_call_func
 def STOCHF(high, low, close, fastk_period=5, fastd_period=3, fastd_matype=0):
     """
     Stochastic Fast Oscillator.
@@ -527,7 +527,7 @@ def STOCHF(high, low, close, fastk_period=5, fastd_period=3, fastd_matype=0):
     """
     pass
 
-@fromtalib
+@_call_func
 def STOCHRSI(real, timeperiod=14, fastk_period=5, fastd_period=3, fastd_matype=0):
     """
     Stochastic Relative Strength Index (StochRSI).
@@ -550,7 +550,7 @@ def STOCHRSI(real, timeperiod=14, fastk_period=5, fastd_period=3, fastd_matype=0
     """
     pass
 
-@fromtalib
+@_call_func
 def TRIX(real, timeperiod=30):
     """
     Triple Exponential Moving Average (TRIX).
@@ -567,7 +567,7 @@ def TRIX(real, timeperiod=30):
     """
     pass
 
-@fromtalib
+@_call_func
 def ULTOSC(high, low, close, timeperiod1=7, timeperiod2=14, timeperiod3=28):
     """
     Ultimate Oscillator (ULTOSC).
@@ -592,7 +592,7 @@ def ULTOSC(high, low, close, timeperiod1=7, timeperiod2=14, timeperiod3=28):
     """
     pass
 
-@fromtalib
+@_call_func
 def WILLR(high, low, close, timeperiod=14):
     """
     Williams %R (WILLR).

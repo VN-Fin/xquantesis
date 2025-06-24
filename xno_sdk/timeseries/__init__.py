@@ -1,9 +1,9 @@
-import talib
-import functools
+from .technicals.price import *
+from .technicals.overlap import *
+from .technicals.volume import *
+from .technicals.momentum import *
+from .technicals.cycle import *
+from .pattern import *
+from .statistical import *
+from .math import *
 
-def fromtalib(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        talib_func = getattr(talib, func.__name__)
-        return talib_func(*args, **kwargs)
-    return wrapper

@@ -1,7 +1,7 @@
-from xno_sdk.timeseries import fromtalib
+from xno_sdk.timeseries._internal import _call_func
 
 
-@fromtalib
+@_call_func
 def BBANDS(real, timeperiod=5, nbdevup=2, nbdevdn=2, matype=0):
     """
     Bollinger Bands indicator.
@@ -28,7 +28,7 @@ def BBANDS(real, timeperiod=5, nbdevup=2, nbdevdn=2, matype=0):
     """
     pass
 
-@fromtalib
+@_call_func
 def DEMA(real, timeperiod=30):
     """
     Double Exponential Moving Average (DEMA).
@@ -45,7 +45,7 @@ def DEMA(real, timeperiod=30):
     """
     pass
 
-@fromtalib
+@_call_func
 def EMA(real, timeperiod=30):
     """
     Exponential Moving Average (EMA).
@@ -62,7 +62,7 @@ def EMA(real, timeperiod=30):
     """
     pass
 
-@fromtalib
+@_call_func
 def HT_TRENDLINE(real):
     """
     Hilbert Transform - Instantaneous Trendline.
@@ -77,7 +77,7 @@ def HT_TRENDLINE(real):
     """
     pass
 
-@fromtalib
+@_call_func
 def KAMA(real, timeperiod=30):
     """
     Kaufman's Adaptive Moving Average (KAMA).
@@ -94,7 +94,7 @@ def KAMA(real, timeperiod=30):
     """
     pass
 
-@fromtalib
+@_call_func
 def MA(real, timeperiod=30, matype=0):
     """
     Moving Average (MA).
@@ -113,7 +113,7 @@ def MA(real, timeperiod=30, matype=0):
     """
     pass
 
-@fromtalib
+@_call_func
 def MAMA(real, fastlimit=0, slowlimit=0):
     """
     MESA Adaptive Moving Average (MAMA).
@@ -134,7 +134,7 @@ def MAMA(real, fastlimit=0, slowlimit=0):
     """
     pass
 
-@fromtalib
+@_call_func
 def MAVP(real, periods, minperiod=2, maxperiod=30, matype=0):
     """
     Moving Average with Variable Periods (MAVP).
@@ -157,7 +157,7 @@ def MAVP(real, periods, minperiod=2, maxperiod=30, matype=0):
     """
     pass
 
-@fromtalib
+@_call_func
 def MIDPOINT(real, timeperiod=14):
     """
     MidPoint over period.
@@ -174,7 +174,7 @@ def MIDPOINT(real, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def MIDPRICE(high, low, timeperiod=14):
     """
     MidPrice over period.
@@ -193,7 +193,7 @@ def MIDPRICE(high, low, timeperiod=14):
     """
     pass
 
-@fromtalib
+@_call_func
 def SAR(high, low, acceleration=0, maximum=0):
     """
     Parabolic SAR (Stop and Reverse).
@@ -214,7 +214,7 @@ def SAR(high, low, acceleration=0, maximum=0):
     """
     pass
 
-@fromtalib
+@_call_func
 def SAREXT(high, low, startvalue=0, offsetonreverse=0, accelerationinitlong=0, accelerationlong=0, accelerationmaxlong=0, accelerationinitshort=0, accelerationshort=0, accelerationmaxshort=0):
     """
     Extended Parabolic SAR (Stop and Reverse).
@@ -247,7 +247,7 @@ def SAREXT(high, low, startvalue=0, offsetonreverse=0, accelerationinitlong=0, a
     """
     pass
 
-@fromtalib
+@_call_func
 def SMA(real, timeperiod=30):
     """
     Simple Moving Average (SMA).
@@ -264,7 +264,7 @@ def SMA(real, timeperiod=30):
     """
     pass
 
-@fromtalib
+@_call_func
 def T3(real, timeperiod=5, vfactor=0):
     """
     Triple Exponential Moving Average (T3).
@@ -283,7 +283,7 @@ def T3(real, timeperiod=5, vfactor=0):
     """
     pass
 
-@fromtalib
+@_call_func
 def TEMA(real, timeperiod=30):
     """
     Triple Exponential Moving Average (TEMA).
@@ -300,7 +300,7 @@ def TEMA(real, timeperiod=30):
     """
     pass
 
-@fromtalib
+@_call_func
 def TRIMA(real, timeperiod=30):
     """
     Triangular Moving Average (TRIMA).
@@ -317,7 +317,7 @@ def TRIMA(real, timeperiod=30):
     """
     pass
 
-@fromtalib
+@_call_func
 def WMA(real, timeperiod=30):
     """
     Weighted Moving Average (WMA).
