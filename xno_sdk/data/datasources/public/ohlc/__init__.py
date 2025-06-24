@@ -33,7 +33,7 @@ class PublicOhlcDatasource(PublicDataSource):
         """
         with requests.get(
                 f"{settings.api_base_url}/quant-data/v1/ohlcv",
-                headers={"Authorization": f"Bearer {settings.api_key}"},
+                headers={"Authorization": f"{settings.api_key}"},
                 params={
                     "symbol": symbol,
                     "from": from_ts,
