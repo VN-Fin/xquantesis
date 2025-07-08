@@ -1,18 +1,10 @@
-# xno_sdk/data/datasources/public/__init__.py
-import json
 import logging
-from abc import ABC
-import threading
-from typing import Iterable, Union, List
-from tqdm import tqdm
-import pandas as pd
-import redis
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import scoped_session, sessionmaker, Session
-from sqlalchemy.pool import QueuePool
-
-from xno_sdk.config import RedisConfiguration, DatabaseConfiguration
+from abc import ABC, abstractmethod
+import websocket
+from xno_sdk.config import settings
 from xno_sdk.data.datasources import BaseDataSource
+from xno_sdk.protoc.websocket_message_pb2 import StockOHLCVMessage
+import base64
 
 
 class PublicDataSource(BaseDataSource, ABC):
@@ -21,41 +13,50 @@ class PublicDataSource(BaseDataSource, ABC):
     """
 
     def __init__(self):
-        """
-        Initialize the internal datasource.
-        This class should not be instantiated directly.
-        """
         super().__init__()
+        self.ws_url = settings.api_base_url.replace("http", "ws") + "/xdata/v1/market"
+        self.commit_batch_size = 125
 
-    def _stream(self, symbols, commit_batch_size=125):
-        """
-        Stream data from Redis Pub/Sub for the specified symbols.
-        :param symbols: List of symbols to subscribe to.
-        :param commit_batch_size: Number of messages to buffer before committing.
-        """
-        pass
+    @abstractmethod
+    def create_ws_subscribe_message(self, symbols) -> str:
+        raise NotImplementedError
 
-    def stream(
-        self,
-        symbols,
-        *,
-        commit_batch_size,
-        daemon,
-        **kwargs,
-    ) -> threading.Thread:
-        if self._stream_thread and self._stream_thread.is_alive():
-            logging.warning("Stream already running")
-            return self._stream_thread
+    def on_message(self, ws, message):
+        try:
+            payload = self.data_transform_func(message)
+            if payload is not None:
+                self.data_buffer.append(payload)
+                self.total_messages += 1
+                if self.total_messages % self.commit_batch_size == 0:
+                    # commit buffered messages to the data source
+                    logging.debug(f"Committing {len(self.data_buffer)} buffered messages. Total consume messages {self.total_messages}")
+            return None
 
-        # Build a partial function so we don't leak kwargs
-        def _runner():
-            self._stream(
-                symbols=symbols,
-                commit_batch_size=commit_batch_size,
-            )
+        except Exception as ex:
+            logging.error("Failed to decode message: %s", ex)
+            return
 
-        th = threading.Thread(target=_runner, daemon=daemon, name="OHLC-Stream")
-        th.start()
-        self._stream_thread = th
-        logging.info("Started background stream (%s)", th.name)
-        return th
+    def _stream(self, symbols):
+        if isinstance(symbols, str):
+            symbols = [symbols]
+        if not symbols:
+            raise ValueError("Symbols list cannot be empty.")
+
+        logging.debug("Starting WebSocket stream for symbols: %s", symbols)
+
+        def on_open(ws):
+            subscribe_msg = self.create_ws_subscribe_message(symbols)
+            logging.debug(f"WebSocket opened [{self.ws_url}]. Sending subscription message: %s", subscribe_msg)
+            ws.send(subscribe_msg)
+
+        def on_ping(ws, message):
+            logging.debug("Ping received, responding with pong...")
+            ws.send("1")  # Or ws.pong(message)
+
+        ws = websocket.WebSocketApp(
+            self.ws_url,
+            on_message=self.on_message,
+            on_open=on_open,
+            on_ping=on_ping,
+        )
+        ws.run_forever(ping_interval=60, ping_timeout=10)

@@ -1,5 +1,7 @@
+import base64
 import json
 import logging
+import threading
 from datetime import datetime
 
 import requests
@@ -11,11 +13,36 @@ from xno_sdk import settings
 import pandas as pd
 
 from xno_sdk.data.datasources.public import PublicDataSource
+from xno_sdk.protoc.websocket_message_pb2 import StockOHLCVMessage
 
+_resolution_maps = {
+    "MIN": "m", "HOUR1": "h", "DAY": "D"
+}
 
 class PublicOhlcDatasource(PublicDataSource):
-    def data_transform_func(self, record: dict) -> dict:
-        pass
+    def data_transform_func(self, record: bytes) -> dict | None:
+        message_type = record[0:2]
+        if message_type != "OH":
+            logging.warning("Received non-OHLC message: %s", record)
+            return None
+
+        msg_bytes = base64.b64decode(record[2:])
+        msg = StockOHLCVMessage()
+        msg.ParseFromString(msg_bytes)
+        if _resolution_maps.get(msg.resolution) is None:
+            logging.warning("Unsupported resolution: %s", msg.resolution)
+            return None
+
+        payload = {
+            "Symbol": msg.symbol,
+            "Time": datetime.fromtimestamp(msg.time).strftime("%Y-%m-%d %H:%M:%S"),
+            "Open": msg.open,
+            "High": msg.high,
+            "Low": msg.low,
+            "Close": msg.close,
+            "Volume": msg.volume,
+        }
+        return payload
 
     def __init__(self):
         """
@@ -26,6 +53,18 @@ class PublicOhlcDatasource(PublicDataSource):
             columns=["Symbol", "Time", "Open", "High", "Low", "Close", "Volume"]
         ).set_index(["Time", "Symbol"])
         self.resolution = None  # Placeholder for resolution, to be set during fetch
+
+    def create_ws_subscribe_message(self, symbols) -> str:
+        """
+        Create a WebSocket topic message for the given symbols.
+        """
+        if isinstance(symbols, str):
+            symbols = [symbols]
+        return json.dumps({
+              "action": "subscribe",
+              "topic": "OH",
+              "values": symbols
+            })
 
     def _stream_request(self, symbol: str, from_ts: int, to_ts: int):
         """
@@ -83,7 +122,3 @@ class PublicOhlcDatasource(PublicDataSource):
             if datas:
                 logging.debug("Fetched %d rows for %s", len(datas), symbol)
                 self.append_df_rows(datas)
-
-    def stream(self, symbols, commit_batch_size, **kwargs):
-        pass
-

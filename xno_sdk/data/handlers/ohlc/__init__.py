@@ -17,4 +17,10 @@ class OHLCHandler(DataHandler):
         return self
 
     def stream(self):
-        return self.source.stream(self.symbols, resolution=self.resolution)
+        return self.source.stream(
+            self.symbols,
+            commit_batch_size=10,
+            daemon=True,
+            resolution=self.resolution,
+            thread_id="ohlc_handler_stream"
+        )

@@ -88,7 +88,8 @@ print(prompt)
 def main(runs):
     # call several times for unique ideas
     for i in range(runs):
-        list_symbols = random.choices(get_available_stocks(), k=50)
+        list_symbols = [s.strip() for s in open("stocks.txt", 'r').readlines()]
+        # list_symbols = ['GEE']
         print("=========================")
         llm = ChatGoogleGenerativeAI(
             model="gemini-2.0-flash",
@@ -114,10 +115,11 @@ def main(runs):
                 to_time="2024-01-01",
                 strategy_name=result.name,
                 description=result.idea,
+                initial_cash=100_000_000.0,  # initial cash
             )
             print(f"Submit to XNO, symbol = {stock}. Success = {True if rs is not None else False}")
 
-            time.sleep(0.5)
+            time.sleep(0.1)
 
 
 if __name__ == "__main__":

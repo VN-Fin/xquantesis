@@ -19,13 +19,23 @@ class DataHandler(ABC):
         self.symbols = symbols
         self.source: Optional[Union[BaseDataSource, Type[BaseDataSource]]] = None
 
-    def get_data(self) -> pd.DataFrame:
+    def get_datas(self) -> pd.DataFrame:
         """
         Get the current DataFrame.
         :return: DataFrame containing the data.
         """
         self.source.commit_buffer()
-        return self.source.datas
+        return self.source.datas.sort_index()
+
+    def get_data(self, symbol):
+        """
+        Get data for a specific symbol.
+        :param symbol: The symbol to retrieve data for.
+        :return: DataFrame containing the data for the specified symbol.
+        """
+        self.get_datas()
+        df = self.source.datas.xs(symbol, level="Symbol", drop_level=True)
+        return df.reset_index()
 
     @abstractmethod
     def load_data(
@@ -45,5 +55,6 @@ class DataHandler(ABC):
         return self.source.stream(
             symbols=self.symbols,
             commit_batch_size=125,
-            daemon=True
+            daemon=True,
+            thread_id="data_handler_stream",
         )

@@ -97,11 +97,10 @@ class InternalDataSource(BaseDataSource, ABC):
                 logging.info("Yielding chunk of size %d", len(chunk_df))
                 yield chunk_df
 
-    def _stream(self, symbols, commit_batch_size=125):
+    def _stream(self, symbols):
         """
         Stream data from Redis Pub/Sub for the specified symbols.
         :param symbols: List of symbols to subscribe to.
-        :param commit_batch_size: Number of messages to buffer before committing.
         """
         # normalise input
         if isinstance(symbols, str):
@@ -125,7 +124,7 @@ class InternalDataSource(BaseDataSource, ABC):
                         self.data_buffer.append(payload)
 
                     total_messages += 1
-                    if total_messages % commit_batch_size == 0:
+                    if total_messages % self.commit_batch_size == 0:
                         # commit buffered messages to the data source
                         logging.debug(f"Committing {len(self.data_buffer)} buffered messages. Total consume messages {total_messages}")
                         self.commit_buffer()
@@ -135,28 +134,3 @@ class InternalDataSource(BaseDataSource, ABC):
         finally:
             # clean shutdown
             pubsub.close()
-
-    def stream(
-        self,
-        symbols,
-        *,
-        commit_batch_size,
-        daemon,
-        **kwargs,
-    ) -> threading.Thread:
-        if self._stream_thread and self._stream_thread.is_alive():
-            logging.warning("Stream already running")
-            return self._stream_thread
-
-        # Build a partial function so we don't leak kwargs
-        def _runner():
-            self._stream(
-                symbols=symbols,
-                commit_batch_size=commit_batch_size,
-            )
-
-        th = threading.Thread(target=_runner, daemon=daemon, name="OHLC-Stream")
-        th.start()
-        self._stream_thread = th
-        logging.info("Started background stream (%s)", th.name)
-        return th

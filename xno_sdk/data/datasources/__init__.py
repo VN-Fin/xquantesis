@@ -1,3 +1,4 @@
+import logging
 import threading
 from abc import abstractmethod, ABC
 from typing import Union, Iterable, List, Dict, Any
@@ -6,7 +7,7 @@ import pandas as pd
 
 
 class BaseDataSource(ABC):
-    _stream_thread: threading.Thread | None = None
+    _stream_threads: Dict[str, threading.Thread] = {}
 
     def __init__(self):
         """
@@ -16,6 +17,9 @@ class BaseDataSource(ABC):
         self.init_dataframe = False
         self.datas: Union[None, pd.DataFrame] = None
         self.data_buffer: List[dict] = []
+        self.commit_batch_size = 125
+        self.total_messages = 0
+
 
     def append_df_rows(self, df: Union[pd.DataFrame, List[Dict[str, Any]]]) -> None:
         """
@@ -59,12 +63,20 @@ class BaseDataSource(ABC):
         raise NotImplementedError("Subclasses must implement this method.")
 
     @abstractmethod
+    def _stream(self, symbols: Union[str, List[str]]):
+        """
+        Stream data from the datasource for the specified symbols.
+        This method should be implemented by subclasses.
+        """
+        raise NotImplementedError("Subclasses must implement this method.")
+
     def stream(
         self,
         symbols,
         *,
         commit_batch_size,
         daemon,
+        thread_id,
         **kwargs,
     ) -> threading.Thread:
         """
@@ -78,15 +90,29 @@ class BaseDataSource(ABC):
             Flush `self.data_buffer` into the DataFrame every N messages.
         daemon : bool
             True → thread exits when main program exits.
+        thread_id : str
+            Identifier for the thread, useful for logging.
 
         Returns
         -------
         threading.Thread
         """
-        raise NotImplementedError("Subclasses must implement this method.")
+        if self._stream_threads.get(thread_id) and self._stream_threads.get(thread_id).is_alive():
+            logging.warning("Stream already running")
+            return self._stream_threads.get(thread_id)
+
+        # Build a partial function so we don't leak kwargs
+        def _runner():
+            self._stream(symbols=symbols)
+
+        th = threading.Thread(target=_runner, daemon=daemon, name=thread_id)
+        th.start()
+        self._stream_threads[thread_id] = th
+        logging.info("Started background stream (%s)", th.name)
+        return th
 
     @abstractmethod
-    def data_transform_func(self, record: dict) -> dict:
+    def data_transform_func(self, record: dict | bytes) -> dict | None:
         raise NotImplementedError()
 
     def commit_buffer(self):

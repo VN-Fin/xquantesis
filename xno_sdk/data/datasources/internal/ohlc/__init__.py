@@ -27,7 +27,7 @@ WHERE (
 
 
 class InternalOhlcDatasource(InternalDataSource):
-    def data_transform_func(self, record: dict) -> Union[None, dict]:
+    def data_transform_func(self, record: dict) -> dict | None:
         # Do not process records that do not match the resolution
         if record.get('resolution') != self.resolution:
             return None
@@ -77,18 +77,3 @@ class InternalOhlcDatasource(InternalDataSource):
             }
         ):
             self.append_df_rows(chunk_df)
-
-    def stream(
-        self,
-        symbols,
-        *,
-        commit_batch_size: int = 10,
-        daemon: bool = True,
-        **kwargs,
-    ) -> threading.Thread:
-        return super().stream(
-            symbols,
-            commit_batch_size=commit_batch_size,
-            daemon=daemon,
-            topic_template=self._realtime_topic_template,
-        )
