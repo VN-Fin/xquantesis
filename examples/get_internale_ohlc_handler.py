@@ -1,7 +1,7 @@
 import time
 
-from xno_sdk.data.handlers.ohlc import OHLCHandler
-from xno_sdk import settings
+from xquantesis.data.handlers.ohlc import OHLCHandler
+from xquantesis import settings
 
 settings.mode = "internal"  # Set to "public" for public mode
 

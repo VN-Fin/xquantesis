@@ -1,4 +1,4 @@
-from xno_sdk.xno.ta.stocks import get_available_stocks
+from xquantesis.xno.ta.stocks import get_available_stocks
 
 if __name__ == "__main__":
     print(get_available_stocks())

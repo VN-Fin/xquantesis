@@ -1,6 +1,6 @@
 
-from xno_sdk import OHLCHandler
-from xno_sdk import settings
+from xquantesis import OHLCHandler
+from xquantesis import settings
 import time
 
 #

@@ -1,5 +1,5 @@
 import numpy as np
-import xno_sdk.timeseries as xt
+import xquantesis.timeseries as xt
 
 open_ = np.random.rand(100)
 high = np.random.rand(100)

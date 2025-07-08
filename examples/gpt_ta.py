@@ -1,12 +1,12 @@
 import random
 import time
 
-from xno_sdk.xno.ta.docs import get_function_docs
+from xquantesis.xno.ta.docs import get_function_docs
 from pydantic import BaseModel, Field
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from xno_sdk.xno.ta.expressions import submit_ta_expression
-from xno_sdk.xno.ta.stocks import get_available_stocks
+from xquantesis.xno.ta.expressions import submit_ta_expression
+from xquantesis.xno.ta.stocks import get_available_stocks
 
 
 class TechnicalAlphaModel(BaseModel):

@@ -5,14 +5,14 @@ def read_requirements():
         return f.read().splitlines()
 
 setup(
-    name="xno_sdk",  # Change to your package name
+    name="xquantesis",  # Change to your package name
     version="0.1.0",  # Version of your package
     author="Kim",
     author_email="kim.nguyen@xno.vn",
     description="Quant package for XNO",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/VN-Fin/xno_sdk",  # GitHub or project link
+    url="https://github.com/VN-Fin/xquantesis",  # GitHub or project link
     packages=find_packages(),
     install_requires=read_requirements(),  # Load dependencies from requirements.txt
     classifiers=[
